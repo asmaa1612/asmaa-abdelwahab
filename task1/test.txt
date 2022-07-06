@@ -1,0 +1,5 @@
+$allKeysOfUsers = array_keys((array)$users);
+foreach ($allKeysOfUsers as &$Key)
+    echo '<th>' . $Key . '</th>';
+
+?>

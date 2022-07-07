@@ -1,9 +1,11 @@
 <?php
 if ($_SERVER["REQUEST_METHOD"] == "POST"){
     if ($_POST['number']<0) {
-        echo $_POST['number'];
+        $positive ="Positive Number";
     } elseif ($_POST['number'] >0) {
-        echo $_POST['number'];
+        $negative = "Negative Number";
+    }else{
+      $invalid = "This Number Not Positive or Negative" ;
     }
 
 }
@@ -30,6 +32,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST"){
     <small id="emailHelp" class="form-text text-muted">This input is required</small>
   </div>
   <button type="submit" class="btn btn-success">Submit</button>
+  <ul class="list-group " style="margin: 10px; ">
+                        <li>  <?php echo $positive??$negative ??$invalid??'';?></li></ul>
 </form>
             </div>
         </div>

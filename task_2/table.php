@@ -62,59 +62,63 @@ $users = [
 <body>
     <div class="container ">
         <div class="row">
-        <div class="col-lg-12 text-center text-secondary h2  m-4">PHP DINAMIC TABLE</div>
+            <div class="col-lg-12 text-center text-secondary h2  m-4">PHP DINAMIC TABLE</div>
 
-    <table class="table table-bordered shadow text-center">
-        
+            <table class="table table-bordered shadow text-center">
 
-        <thead class="thead-light ">
-            <tr>
-               
-                <?php
-                $allKeysOfUsers = array_keys((array)$users[0]);
-foreach ($allKeysOfUsers as &$Key)
-    echo '<th>' . $Key . '</th>';
 
-?>
-            <!-- <th scope="col">id</th>
+                <thead class="thead-light ">
+                    <tr>
+
+                         <?php // solution__1__
+                        $allKeysOfUsers = array_keys((array)$users[0]);
+                        foreach ($allKeysOfUsers as &$Key)
+                            echo '<th>' . $Key . '</th>';
+
+                        ?> 
+                        <!-- <?php // solution__2__
+                        foreach ($users[0] as $user => $value) {?>
+                            <th scope="col"><?= $user?></th>
+                   <?php    }?> -->
+                        <!-- <th scope="col">id</th>
                 <th scope="col">Name</th>
                 <th scope="col">gender</th>
                 <th scope="col">Hobbies</th>
                 <th scope="col">Activities</th> -->
-            </tr>
-        </thead>
-        <?php foreach ($users as $user) { ?>
-            <tbody>
-                <tr>
-                    <th scope="row">
-                        <?= (int)$user->id ?> </th>
-                    <td><?= $user->name ?></td>
-                    <td>
-                        <?php
-                        foreach ($user->gender as $gender) {
-                            if ($gender == 'f') {
-                                echo' Female' . '<br>';
-                            }else{echo 'Male '. '<br>';}
-                        
-                            
-                        } ?>
+                    </tr>
+                </thead>
+                <?php foreach ($users as $user) { ?>
+                    <tbody>
+                        <tr>
+                            <th scope="row">
+                                <?= (int)$user->id ?> </th>
+                            <td><?= $user->name ?></td>
+                            <td>
+                                <?php
+                                foreach ($user->gender as $gender) {
+                                    if ($gender == 'f') {
+                                        echo ' Female' . '<br>';
+                                    } else {
+                                        echo 'Male ' . '<br>';
+                                    }
+                                } ?>
 
-                    </td>
-                    <td>
-                        <?php foreach ($user->hobbies  as $hobby) {
-                            echo $hobby . '<br>';
-                        } ?>
-                    </td>
-                    <td>
-                        <?php foreach ($user->activities  as $activity) {
-                            echo $activity . '<br>';
-                        } ?>
-                    </td>
-                </tr>
-            </tbody>
-        <?php } ?>
-    </table>
-    </div>
+                            </td>
+                            <td>
+                                <?php foreach ($user->hobbies  as $hobby) {
+                                    echo $hobby . '<br>';
+                                } ?>
+                            </td>
+                            <td>
+                                <?php foreach ($user->activities  as $activity) {
+                                    echo $activity . '<br>';
+                                } ?>
+                            </td>
+                        </tr>
+                    </tbody>
+                <?php } ?>
+            </table>
+        </div>
     </div>
 
 

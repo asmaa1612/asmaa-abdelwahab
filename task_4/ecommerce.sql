@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 23, 2022 at 08:57 AM
+-- Generation Time: Jul 24, 2022 at 08:10 AM
 -- Server version: 10.4.24-MariaDB
 -- PHP Version: 8.0.19
 
@@ -45,10 +45,11 @@ CREATE TABLE `admins` (
 
 CREATE TABLE `adresses` (
   `id` bigint(20) UNSIGNED NOT NULL,
-  `street` varchar(255) NOT NULL,
+  `street` varchar(255) DEFAULT NULL,
   `building` varchar(50) NOT NULL,
+  `floor` varchar(11) NOT NULL,
   `flat` varchar(25) NOT NULL,
-  `notes` varchar(255) NOT NULL,
+  `notes` varchar(255) DEFAULT NULL,
   `type` varchar(25) NOT NULL DEFAULT 'House',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp(),
@@ -63,7 +64,7 @@ CREATE TABLE `adresses` (
 --
 
 CREATE TABLE `brands` (
-  `id` bigint(20) NOT NULL,
+  `id` bigint(20) UNSIGNED NOT NULL,
   `name_en` varchar(100) NOT NULL,
   `name_ar` varchar(100) NOT NULL,
   `image` varchar(100) NOT NULL DEFAULT 'brand.jpg',
@@ -92,6 +93,7 @@ CREATE TABLE `carts` (
 
 CREATE TABLE `categories` (
   `id` bigint(20) UNSIGNED NOT NULL,
+  `image` varchar(50) DEFAULT 'default.jpg',
   `name_en` varchar(30) NOT NULL,
   `name_ar` varchar(30) NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1 COMMENT ' 1=> active ,0=> none active',
@@ -172,7 +174,7 @@ CREATE TABLE `offers` (
   `start_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `end_at` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp(),
   `discount` decimal(3,0) NOT NULL,
-  `discount_type` varchar(1) NOT NULL,
+  `discount_type` tinyint(1) NOT NULL DEFAULT 1,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -189,13 +191,12 @@ CREATE TABLE `orders` (
   `payment_methods` varchar(25) NOT NULL,
   `notes` varchar(255) DEFAULT NULL,
   `total_price` bigint(20) NOT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT 1 COMMENT '1=>true on active ,0=>false on blocked',
-  `delivered_at` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp(),
+  `status` tinyint(1) NOT NULL DEFAULT 1,
+  `delivered_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp(),
-  `user_id` bigint(20) UNSIGNED NOT NULL,
   `coupon_id` bigint(20) UNSIGNED NOT NULL,
-  `address_id` bigint(20) UNSIGNED NOT NULL
+  `adress_id` bigint(20) UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -234,9 +235,9 @@ CREATE TABLE `proudcts` (
   `name_ar` varchar(50) NOT NULL,
   `price` decimal(10,0) NOT NULL,
   `quantity` smallint(3) NOT NULL,
-  `code` bigint(20) NOT NULL,
-  `details_en` mediumint(9) NOT NULL,
-  `details_ar` mediumint(9) NOT NULL,
+  `code` mediumint(6) NOT NULL,
+  `details_en` mediumtext NOT NULL,
+  `details_ar` mediumtext NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp(),
   `status` tinyint(1) NOT NULL COMMENT '1=>active ,0=> not_active',
@@ -314,6 +315,7 @@ CREATE TABLE `users` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `first_name` varchar(25) NOT NULL,
   `last_name` varchar(25) NOT NULL,
+  `gender` varchar(1) NOT NULL,
   `phone` varchar(11) NOT NULL,
   `email` varchar(50) NOT NULL,
   `password` varchar(255) NOT NULL,
@@ -341,6 +343,7 @@ ALTER TABLE `admins`
 ALTER TABLE `adresses`
   ADD PRIMARY KEY (`id`,`user_id`),
   ADD UNIQUE KEY `building` (`building`),
+  ADD UNIQUE KEY `floor` (`floor`),
   ADD KEY `adresses_users_fk` (`user_id`),
   ADD KEY `adresses_regions_fk` (`region_id`);
 
@@ -401,9 +404,10 @@ ALTER TABLE `offers`
 -- Indexes for table `orders`
 --
 ALTER TABLE `orders`
-  ADD PRIMARY KEY (`id`,`user_id`,`coupon_id`),
-  ADD KEY `users_orders_fk` (`user_id`),
-  ADD KEY `orders_coupons_fk` (`coupon_id`);
+  ADD PRIMARY KEY (`id`,`coupon_id`,`adress_id`),
+  ADD UNIQUE KEY `coupon_id_2` (`coupon_id`),
+  ADD UNIQUE KEY `number` (`number`),
+  ADD KEY `coupon_id` (`coupon_id`) USING BTREE;
 
 --
 -- Indexes for table `product_offer`
@@ -483,7 +487,7 @@ ALTER TABLE `adresses`
 -- AUTO_INCREMENT for table `brands`
 --
 ALTER TABLE `brands`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `categories`
@@ -578,13 +582,6 @@ ALTER TABLE `favourits`
   ADD CONSTRAINT `fav_prouducts_users_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `orders`
---
-ALTER TABLE `orders`
-  ADD CONSTRAINT `orders_coupons_fk` FOREIGN KEY (`coupon_id`) REFERENCES `coupons` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `users_orders_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
 -- Constraints for table `product_offer`
 --
 ALTER TABLE `product_offer`
@@ -601,6 +598,7 @@ ALTER TABLE `product_spec`
 -- Constraints for table `proudcts`
 --
 ALTER TABLE `proudcts`
+  ADD CONSTRAINT `prouducts_brands_fk` FOREIGN KEY (`brand_id`) REFERENCES `brands` (`id`),
   ADD CONSTRAINT `subcategories_prouducts_fk` FOREIGN KEY (`subcategory_id`) REFERENCES `subcategories` (`id`);
 
 --
